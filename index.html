@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>DinoNeon — Энергия будущего | Игра-раннер про кибер-динозавра</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0f1a;
+            font-family: 'Segoe UI', 'Press Start 2P', 'Courier New', monospace;
+            color: #e0e0e0;
+            line-height: 1.5;
+        }
+
+        /* Неоновый эффект для заголовков */
+        .neon-text {
+            text-shadow: 0 0 5px #00ffcc, 0 0 10px #00ffcc, 0 0 20px #00ffcc;
+            color: #00ffcc;
+        }
+
+        .neon-pink {
+            text-shadow: 0 0 5px #ff00cc, 0 0 10px #ff00cc;
+            color: #ff00cc;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Шапка */
+        header {
+            text-align: center;
+            padding: 40px 0 20px;
+            border-bottom: 2px solid #00ffcc;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            letter-spacing: 4px;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        /* Секция игры */
+        .game-section {
+            background: #101520;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 50px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+            border: 1px solid #00ffcc66;
+        }
+
+        .game-section h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .game-preview {
+            background: #000000aa;
+            border-radius: 16px;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border: 2px dashed #00ffcc;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .game-placeholder {
+            font-size: 1.5rem;
+            color: #00ffcc;
+        }
+
+        .game-placeholder button {
+            background: #00ffcc;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
+            border-radius: 40px;
+            transition: 0.3s;
+        }
+
+        .game-placeholder button:hover {
+            background: #ff00cc;
+            color: white;
+            box-shadow: 0 0 15px #ff00cc;
+        }
+
+        /* Секция 3D-моделей */
+        .models-section {
+            margin-bottom: 50px;
+        }
+
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .model-card {
+            background: #101520;
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            transition: 0.2s;
+            border: 1px solid #2a2f3a;
+        }
+
+        .model-card:hover {
+            transform: translateY(-5px);
+            border-color: #ff00cc;
+            box-shadow: 0 0 15px #ff00cc44;
+        }
+
+        .model-card img {
+            width: 100%;
+            max-width: 200px;
+            border-radius: 12px;
+            background: #00000088;
+            padding: 10px;
+        }
+
+        .model-card h3 {
+            margin: 15px 0 8px;
+            color: #00ffcc;
+        }
+
+        .model-card p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        /* Описание и польза */
+        .info-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 50px;
+            background: #0c111a;
+            padding: 30px;
+            border-radius: 20px;
+        }
+
+        .info-box {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .info-box h3 {
+            color: #ff00cc;
+            margin-bottom: 15px;
+            border-left: 4px solid #ff00cc;
+            padding-left: 12px;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-box li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .info-box li::before {
+            content: "⚡";
+            position: absolute;
+            left: 0;
+            color: #00ffcc;
+        }
+
+        /* Технологии */
+        .tech-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tech-badge {
+            display: inline-block;
+            background: #1e1e2a;
+            padding: 8px 18px;
+            margin: 8px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            border: 1px solid #00ffcc;
+        }
+
+        /* Футер */
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            border-top: 1px solid #2a2f3a;
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        a {
+            color: #00ffcc;
+            text-decoration: none;
+        }
+
+        @media (max-width: 700px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            .game-preview {
+                min-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1><span class="neon-text">DinoNeon</span> <span class="neon-pink">:</span> Энергия будущего</h1>
+        <p>Кибер-динозавр спасает мегаполис. Собирай энерго-кости, уклоняйся от дронов и лазеров!</p>
+    </header>
+
+    <!-- Секция с игрой (пока заглушка, потом вставим настоящую игру) -->
+    <section class="game-section">
+        <h2 class="neon-text">🎮 Играть прямо сейчас</h2>
+        <div class="game-preview" id="gameContainer">
+            <div class="game-placeholder">
+                ⚡ ИГРА ЗАГРУЗИТСЯ ЗДЕСЬ ⚡<br>
+                <small>(скоро: твой раннер на Construct 3)</small>
+                <br><br>
+                <button id="demoBtn">Показать демо-геймплей (картинка)</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Секция 3D-моделей (заглушки, заменишь на свои рендеры) -->
+    <section class="models-section">
+        <h2 class="neon-text" style="text-align:center;">✨ Твои 3D-модели</h2>
+        <p style="text-align:center; margin-bottom:20px;">Созданы в TinkerCAD и Blender специально для DinoNeon</p>
+        <div class="models-grid">
+            <div class="model-card">
+                <img src="https://placehold.co/400x300/1a1f2a/00ffcc?text=Энерго-кость+1" alt="3D модель кость кристалл">
+                <h3>Энерго-кость №1</h3>
+                <p>Неоновый кристалл в форме кости</p>
+            </div>
+            <div class="model-card">
+                <img src="https://placehold.co/400x300/1a1f2a/ff00cc?text=Энерго-кость+2" alt="3D модель синяя кость">
+                <h3>Энерго-кость №2</h3>
+                <p>Заряженный артефакт древних</p>
+            </div>
+            <div class="model-card">
+                <img src="https://placehold.co/400x300/1a1f2a/00ffcc?text=Кибер-Дино" alt="3D динозавр Blender">
+                <h3>Кибер-динозавр</h3>
+                <p>Полная 3D-модель героя (Blender)</p>
+            </div>
+        </div>
+        <p style="text-align:center; margin-top:10px; font-size:0.8rem;">⭐ Скоро здесь появятся твои собственные рендеры! Заменишь картинки в папке images.</p>
+    </section>
+
+    <!-- О проекте, польза, технологии -->
+    <div class="info-section">
+        <div class="info-box">
+            <h3>🦖 О проекте</h3>
+            <p><strong>DinoNeon: Энергия будущего</strong> — динамичный 2D раннер, в котором игрок управляет кибер-динозавром. Цель — собрать как можно больше энерго-костей и установить рекорд, избегая дронов-охранников и лазерных ловушек.</p>
+            <p style="margin-top:12px;">3 уровня сложности: с каждым уровнем скорость бега растёт, а препятствий становится больше.</p>
+        </div>
+        <div class="info-box">
+            <h3>🎯 Для кого игра?</h3>
+            <ul>
+                <li>Школьники, которые любят динамичные аркады</li>
+                <li>Фанаты динозавров и киберпанка</li>
+                <li>Все, кто хочет провести 5 минут с пользой для реакции</li>
+            </ul>
+            <h3 style="margin-top:15px;">📚 Польза</h3>
+            <ul>
+                <li>Тренирует быстроту реакции</li>
+                <li>Развивает внимание и концентрацию</li>
+                <li>Бесплатно и без интернета (после загрузки)</li>
+            </ul>
+        </div>
+        <div class="info-box">
+            <h3>🛠️ Технологии</h3>
+            <ul>
+                <li>Игра: Construct 3 (HTML5)</li>
+                <li>3D-модели: TinkerCAD, Blender</li>
+                <li>Сайт: HTML, CSS, JavaScript</li>
+                <li>Спрайты: Adobe Photoshop / Photopea</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="tech-section">
+        <span class="tech-badge">🎮 Construct 3</span>
+        <span class="tech-badge">🧩 Blender</span>
+        <span class="tech-badge">🎨 TinkerCAD</span>
+        <span class="tech-badge">🌐 HTML/CSS</span>
+        <span class="tech-badge">⚡ Бесплатно навсегда</span>
+    </div>
+
+    <footer>
+        <p>Проект ученика ___ класса | Финальная работа после 5 лет обучения</p>
+        <p>DinoNeon — игра создана с любовью к динозаврам и технологиям будущего. Без монетизации, донатов и рекламы.</p>
+        <p>⭐ <a href="#" id="fakeLink">Связаться с разработчиком</a> (просто учебный контакт)</p>
+    </footer>
+</div>
+
+<script>
+    // Маленький интерактив: кнопка "Показать демо-геймплей" показывает картинку вместо заглушки
+    const demoBtn = document.getElementById('demoBtn');
+    const gameContainer = document.getElementById('gameContainer');
+    if(demoBtn) {
+        demoBtn.addEventListener('click', function() {
+            gameContainer.innerHTML = `
+                <div class="game-preview" style="flex-direction:column;">
+                    <img src="https://placehold.co/800x400/0a0f1a/00ffcc?text=Тут+будет+твоя+игра+DinoNeon" alt="Демо геймплея" style="max-width:100%; border-radius:16px;">
+                    <p style="margin-top:15px;">🎮 Когда игра будет готова, она появится здесь!<br> А пока — идёт разработка уровней и 3D-бонусов.</p>
+                </div>
+            `;
+        });
+    }
+
+    // Просто предупреждение для ссылки
+    const fakeLink = document.getElementById('fakeLink');
+    if(fakeLink) {
+        fakeLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Спасибо за интерес! Это учебный проект. По всем вопросам можно обратиться к учителю информатики.');
+        });
+    }
+</script>
+
+</body>
+</html>
