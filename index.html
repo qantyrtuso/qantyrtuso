@@ -18,7 +18,6 @@
             line-height: 1.5;
         }
 
-        /* Неоновый эффект для заголовков */
         .neon-text {
             text-shadow: 0 0 5px #00ffcc, 0 0 10px #00ffcc, 0 0 20px #00ffcc;
             color: #00ffcc;
@@ -35,7 +34,6 @@
             padding: 20px;
         }
 
-        /* Шапка */
         header {
             text-align: center;
             padding: 40px 0 20px;
@@ -54,7 +52,6 @@
             opacity: 0.9;
         }
 
-        /* Секция игры */
         .game-section {
             background: #101520;
             border-radius: 20px;
@@ -72,40 +69,17 @@
         .game-preview {
             background: #000000aa;
             border-radius: 16px;
-            min-height: 400px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            border: 2px dashed #00ffcc;
-            text-align: center;
-            padding: 40px;
+            overflow: hidden;
+            border: 2px solid #00ffcc;
         }
 
-        .game-placeholder {
-            font-size: 1.5rem;
-            color: #00ffcc;
-        }
-
-        .game-placeholder button {
-            background: #00ffcc;
+        .game-preview iframe {
+            display: block;
+            width: 100%;
+            height: 450px;
             border: none;
-            padding: 12px 24px;
-            font-size: 1rem;
-            font-weight: bold;
-            margin-top: 20px;
-            cursor: pointer;
-            border-radius: 40px;
-            transition: 0.3s;
         }
 
-        .game-placeholder button:hover {
-            background: #ff00cc;
-            color: white;
-            box-shadow: 0 0 15px #ff00cc;
-        }
-
-        /* Секция 3D-моделей */
         .models-section {
             margin-bottom: 50px;
         }
@@ -150,7 +124,6 @@
             opacity: 0.8;
         }
 
-        /* Описание и польза */
         .info-section {
             display: flex;
             flex-wrap: wrap;
@@ -191,7 +164,6 @@
             color: #00ffcc;
         }
 
-        /* Технологии */
         .tech-section {
             text-align: center;
             margin-bottom: 40px;
@@ -207,7 +179,6 @@
             border: 1px solid #00ffcc;
         }
 
-        /* Футер */
         footer {
             text-align: center;
             padding: 30px 0;
@@ -226,8 +197,8 @@
             header h1 {
                 font-size: 2rem;
             }
-            .game-preview {
-                min-height: 300px;
+            .game-preview iframe {
+                height: 350px;
             }
         }
     </style>
@@ -240,20 +211,15 @@
         <p>Кибер-динозавр спасает мегаполис. Собирай энерго-кости, уклоняйся от дронов и лазеров!</p>
     </header>
 
-    <!-- Секция с игрой (пока заглушка, потом вставим настоящую игру) -->
+    <!-- Секция с игрой (уже встроен iframe) -->
     <section class="game-section">
         <h2 class="neon-text">🎮 Играть прямо сейчас</h2>
-        <div class="game-preview" id="gameContainer">
-            <div class="game-placeholder">
-                ⚡ ИГРА ЗАГРУЗИТСЯ ЗДЕСЬ ⚡<br>
-                <small>(скоро: твой раннер на Construct 3)</small>
-                <br><br>
-                <button id="demoBtn">Показать демо-геймплей (картинка)</button>
-            </div>
+        <div class="game-preview">
+            <iframe src="game.html" title="DinoNeon игра"></iframe>
         </div>
     </section>
 
-    <!-- Секция 3D-моделей (заглушки, заменишь на свои рендеры) -->
+    <!-- Секция 3D-моделей (замени картинки на свои рендеры) -->
     <section class="models-section">
         <h2 class="neon-text" style="text-align:center;">✨ Твои 3D-модели</h2>
         <p style="text-align:center; margin-bottom:20px;">Созданы в TinkerCAD и Blender специально для DinoNeon</p>
@@ -301,16 +267,16 @@
         <div class="info-box">
             <h3>🛠️ Технологии</h3>
             <ul>
-                <li>Игра: Construct 3 (HTML5)</li>
+                <li>Игра: JavaScript + Canvas</li>
                 <li>3D-модели: TinkerCAD, Blender</li>
-                <li>Сайт: HTML, CSS, JavaScript</li>
-                <li>Спрайты: Adobe Photoshop / Photopea</li>
+                <li>Сайт: HTML, CSS</li>
+                <li>Спрайты: Photoshop / Photopea</li>
             </ul>
         </div>
     </div>
 
     <div class="tech-section">
-        <span class="tech-badge">🎮 Construct 3</span>
+        <span class="tech-badge">🎮 JavaScript</span>
         <span class="tech-badge">🧩 Blender</span>
         <span class="tech-badge">🎨 TinkerCAD</span>
         <span class="tech-badge">🌐 HTML/CSS</span>
@@ -320,25 +286,11 @@
     <footer>
         <p>Проект ученика ___ класса | Финальная работа после 5 лет обучения</p>
         <p>DinoNeon — игра создана с любовью к динозаврам и технологиям будущего. Без монетизации, донатов и рекламы.</p>
-        <p>⭐ <a href="#" id="fakeLink">Связаться с разработчиком</a> (просто учебный контакт)</p>
+        <p>⭐ <a href="#" id="fakeLink">Связаться с разработчиком</a> (учебный контакт)</p>
     </footer>
 </div>
 
 <script>
-    // Маленький интерактив: кнопка "Показать демо-геймплей" показывает картинку вместо заглушки
-    const demoBtn = document.getElementById('demoBtn');
-    const gameContainer = document.getElementById('gameContainer');
-    if(demoBtn) {
-        demoBtn.addEventListener('click', function() {
-            gameContainer.innerHTML = `
-                <div class="game-preview" style="flex-direction:column;">
-                    <img src="https://placehold.co/800x400/0a0f1a/00ffcc?text=Тут+будет+твоя+игра+DinoNeon" alt="Демо геймплея" style="max-width:100%; border-radius:16px;">
-                    <p style="margin-top:15px;">🎮 Когда игра будет готова, она появится здесь!<br> А пока — идёт разработка уровней и 3D-бонусов.</p>
-                </div>
-            `;
-        });
-    }
-
     // Просто предупреждение для ссылки
     const fakeLink = document.getElementById('fakeLink');
     if(fakeLink) {
