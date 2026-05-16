@@ -2,304 +2,443 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>DinoNeon — Энергия будущего | Игра-раннер про кибер-динозавра</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>DinoNeon — Игра с магазином</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            user-select: none;
         }
-
         body {
             background: #0a0f1a;
-            font-family: 'Segoe UI', 'Press Start 2P', 'Courier New', monospace;
-            color: #e0e0e0;
-            line-height: 1.5;
-        }
-
-        .neon-text {
-            text-shadow: 0 0 5px #00ffcc, 0 0 10px #00ffcc, 0 0 20px #00ffcc;
-            color: #00ffcc;
-        }
-
-        .neon-pink {
-            text-shadow: 0 0 5px #ff00cc, 0 0 10px #ff00cc;
-            color: #ff00cc;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        header {
-            text-align: center;
-            padding: 40px 0 20px;
-            border-bottom: 2px solid #00ffcc;
-            margin-bottom: 40px;
-        }
-
-        header h1 {
-            font-size: 3rem;
-            letter-spacing: 4px;
-        }
-
-        header p {
-            font-size: 1.2rem;
-            margin-top: 10px;
-            opacity: 0.9;
-        }
-
-        .game-section {
-            background: #101520;
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 50px;
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
-            border: 1px solid #00ffcc66;
-        }
-
-        .game-section h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .game-preview {
-            background: #000000aa;
-            border-radius: 16px;
-            overflow: hidden;
-            border: 2px solid #00ffcc;
-        }
-
-        .game-preview iframe {
-            display: block;
-            width: 100%;
-            height: 450px;
-            border: none;
-        }
-
-        .models-section {
-            margin-bottom: 50px;
-        }
-
-        .models-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-            margin-top: 25px;
-        }
-
-        .model-card {
-            background: #101520;
-            border-radius: 16px;
-            padding: 15px;
-            text-align: center;
-            transition: 0.2s;
-            border: 1px solid #2a2f3a;
-        }
-
-        .model-card:hover {
-            transform: translateY(-5px);
-            border-color: #ff00cc;
-            box-shadow: 0 0 15px #ff00cc44;
-        }
-
-        .model-card img {
-            width: 100%;
-            max-width: 200px;
-            border-radius: 12px;
-            background: #00000088;
-            padding: 10px;
-        }
-
-        .model-card h3 {
-            margin: 15px 0 8px;
-            color: #00ffcc;
-        }
-
-        .model-card p {
-            font-size: 0.85rem;
-            opacity: 0.8;
-        }
-
-        .info-section {
+            font-family: 'Courier New', monospace;
             display: flex;
-            flex-wrap: wrap;
-            gap: 30px;
-            margin-bottom: 50px;
-            background: #0c111a;
-            padding: 30px;
-            border-radius: 20px;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-
-        .info-box {
-            flex: 1;
-            min-width: 200px;
+        /* Контейнер для всех экранов */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-
-        .info-box h3 {
-            color: #ff00cc;
-            margin-bottom: 15px;
-            border-left: 4px solid #ff00cc;
-            padding-left: 12px;
+        .screen.active {
+            display: flex;
         }
-
-        .info-box ul {
-            list-style: none;
-            padding-left: 0;
+        /* Стили меню */
+        .menu-box {
+            background: #101520;
+            border: 2px solid #00ffcc;
+            border-radius: 32px;
+            padding: 40px 60px;
+            text-align: center;
+            box-shadow: 0 0 30px #00ffcc44;
         }
-
-        .info-box li {
+        .menu-box h1 {
+            font-size: 3rem;
+            color: #00ffcc;
+            text-shadow: 0 0 10px #00ffcc;
             margin-bottom: 10px;
-            padding-left: 20px;
-            position: relative;
         }
-
-        .info-box li::before {
-            content: "⚡";
-            position: absolute;
-            left: 0;
-            color: #00ffcc;
-        }
-
-        .tech-section {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .tech-badge {
-            display: inline-block;
-            background: #1e1e2a;
-            padding: 8px 18px;
-            margin: 8px;
-            border-radius: 40px;
-            font-size: 0.9rem;
-            border: 1px solid #00ffcc;
-        }
-
-        footer {
-            text-align: center;
-            padding: 30px 0;
-            border-top: 1px solid #2a2f3a;
-            margin-top: 20px;
-            font-size: 0.8rem;
+        .menu-box p {
             color: #aaa;
+            margin-bottom: 30px;
         }
-
-        a {
+        .menu-btn {
+            background: #1e2a3a;
+            border: 1px solid #00ffcc;
             color: #00ffcc;
-            text-decoration: none;
+            font-size: 1.5rem;
+            font-family: inherit;
+            padding: 12px 30px;
+            margin: 10px;
+            width: 200px;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: 0.2s;
         }
-
-        @media (max-width: 700px) {
-            header h1 {
-                font-size: 2rem;
-            }
-            .game-preview iframe {
-                height: 350px;
-            }
+        .menu-btn:hover {
+            background: #00ffcc;
+            color: #0a0f1a;
+            box-shadow: 0 0 15px #00ffcc;
+        }
+        /* Магазин */
+        .shop-item {
+            background: #1a1f2a;
+            border: 1px solid #ff00cc;
+            border-radius: 20px;
+            padding: 15px;
+            margin: 15px;
+            width: 250px;
+            text-align: center;
+        }
+        .shop-item h3 {
+            color: #ff00cc;
+        }
+        .shop-btn {
+            background: #2a2f3a;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .shop-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        /* Игровой экран */
+        canvas {
+            border: 2px solid #00ffcc;
+            border-radius: 16px;
+            background: #0a0f1a;
+            cursor: pointer;
+        }
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            width: 800px;
+            margin-bottom: 10px;
+            color: #00ffcc;
+            font-weight: bold;
+        }
+        .back-btn {
+            background: #ff00cc;
+            border: none;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 40px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .score-display {
+            font-size: 1.2rem;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1><span class="neon-text">DinoNeon</span> <span class="neon-pink">:</span> Энергия будущего</h1>
-        <p>Кибер-динозавр спасает мегаполис. Собирай энерго-кости, уклоняйся от дронов и лазеров!</p>
-    </header>
-
-    <!-- Секция с игрой (уже встроен iframe) -->
-    <section class="game-section">
-        <h2 class="neon-text">🎮 Играть прямо сейчас</h2>
-        <div class="game-preview">
-            <iframe src="game.html" title="DinoNeon игра"></iframe>
-        </div>
-    </section>
-
-    <!-- Секция 3D-моделей (замени картинки на свои рендеры) -->
-    <section class="models-section">
-        <h2 class="neon-text" style="text-align:center;">✨ Твои 3D-модели</h2>
-        <p style="text-align:center; margin-bottom:20px;">Созданы в TinkerCAD и Blender специально для DinoNeon</p>
-        <div class="models-grid">
-            <div class="model-card">
-                <img src="https://placehold.co/400x300/1a1f2a/00ffcc?text=Энерго-кость+1" alt="3D модель кость кристалл">
-                <h3>Энерго-кость №1</h3>
-                <p>Неоновый кристалл в форме кости</p>
-            </div>
-            <div class="model-card">
-                <img src="https://placehold.co/400x300/1a1f2a/ff00cc?text=Энерго-кость+2" alt="3D модель синяя кость">
-                <h3>Энерго-кость №2</h3>
-                <p>Заряженный артефакт древних</p>
-            </div>
-            <div class="model-card">
-                <img src="https://placehold.co/400x300/1a1f2a/00ffcc?text=Кибер-Дино" alt="3D динозавр Blender">
-                <h3>Кибер-динозавр</h3>
-                <p>Полная 3D-модель героя (Blender)</p>
-            </div>
-        </div>
-        <p style="text-align:center; margin-top:10px; font-size:0.8rem;">⭐ Скоро здесь появятся твои собственные рендеры! Заменишь картинки в папке images.</p>
-    </section>
-
-    <!-- О проекте, польза, технологии -->
-    <div class="info-section">
-        <div class="info-box">
-            <h3>🦖 О проекте</h3>
-            <p><strong>DinoNeon: Энергия будущего</strong> — динамичный 2D раннер, в котором игрок управляет кибер-динозавром. Цель — собрать как можно больше энерго-костей и установить рекорд, избегая дронов-охранников и лазерных ловушек.</p>
-            <p style="margin-top:12px;">3 уровня сложности: с каждым уровнем скорость бега растёт, а препятствий становится больше.</p>
-        </div>
-        <div class="info-box">
-            <h3>🎯 Для кого игра?</h3>
-            <ul>
-                <li>Школьники, которые любят динамичные аркады</li>
-                <li>Фанаты динозавров и киберпанка</li>
-                <li>Все, кто хочет провести 5 минут с пользой для реакции</li>
-            </ul>
-            <h3 style="margin-top:15px;">📚 Польза</h3>
-            <ul>
-                <li>Тренирует быстроту реакции</li>
-                <li>Развивает внимание и концентрацию</li>
-                <li>Бесплатно и без интернета (после загрузки)</li>
-            </ul>
-        </div>
-        <div class="info-box">
-            <h3>🛠️ Технологии</h3>
-            <ul>
-                <li>Игра: JavaScript + Canvas</li>
-                <li>3D-модели: TinkerCAD, Blender</li>
-                <li>Сайт: HTML, CSS</li>
-                <li>Спрайты: Photoshop / Photopea</li>
-            </ul>
-        </div>
+<!-- ЭКРАН МЕНЮ -->
+<div id="menuScreen" class="screen active">
+    <div class="menu-box">
+        <h1>🦖 DINO NEON</h1>
+        <p>Энергия будущего</p>
+        <button class="menu-btn" id="playBtn">▶ ИГРАТЬ</button>
+        <button class="menu-btn" id="shopBtn">🛒 МАГАЗИН</button>
+        <button class="menu-btn" id="controlsBtn">🎮 УПРАВЛЕНИЕ</button>
     </div>
+</div>
 
-    <div class="tech-section">
-        <span class="tech-badge">🎮 JavaScript</span>
-        <span class="tech-badge">🧩 Blender</span>
-        <span class="tech-badge">🎨 TinkerCAD</span>
-        <span class="tech-badge">🌐 HTML/CSS</span>
-        <span class="tech-badge">⚡ Бесплатно навсегда</span>
+<!-- ЭКРАН УПРАВЛЕНИЯ -->
+<div id="controlsScreen" class="screen">
+    <div class="menu-box">
+        <h2>🎮 Управление</h2>
+        <p>Пробел или клик мышкой — прыжок</p>
+        <p>Собирай синие кристаллы +10 очков</p>
+        <p>Избегай красных дронов</p>
+        <p>Скорость игры постепенно растёт</p>
+        <button class="menu-btn" id="backFromControls">Назад</button>
     </div>
+</div>
 
-    <footer>
-        <p>Проект ученика ___ класса | Финальная работа после 5 лет обучения</p>
-        <p>DinoNeon — игра создана с любовью к динозаврам и технологиям будущего. Без монетизации, донатов и рекламы.</p>
-        <p>⭐ <a href="#" id="fakeLink">Связаться с разработчиком</a> (учебный контакт)</p>
-    </footer>
+<!-- ЭКРАН МАГАЗИНА -->
+<div id="shopScreen" class="screen">
+    <div class="menu-box">
+        <h2>🛒 Магазин скинов</h2>
+        <p>Твои очки: <span id="totalScore">0</span></p>
+        <div id="shopItems"></div>
+        <button class="menu-btn" id="backFromShop">Назад</button>
+    </div>
+</div>
+
+<!-- ЭКРАН ИГРЫ -->
+<div id="gameScreen" class="screen">
+    <div class="game-header">
+        <span>⚡ ОЧКИ: <span id="gameScore">0</span></span>
+        <span>🏆 ВСЕГО: <span id="totalScoreGame">0</span></span>
+        <button class="back-btn" id="exitToMenu">Выйти в меню</button>
+    </div>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <div style="margin-top: 10px;">
+        <button class="back-btn" id="restartGameBtn">🔄 Начать заново</button>
+    </div>
 </div>
 
 <script>
-    // Просто предупреждение для ссылки
-    const fakeLink = document.getElementById('fakeLink');
-    if(fakeLink) {
-        fakeLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            alert('Спасибо за интерес! Это учебный проект. По всем вопросам можно обратиться к учителю информатики.');
+    // ---------- ИНИЦИАЛИЗАЦИЯ ----------
+    // Очки в магазине (сохраняем в localStorage)
+    let totalPoints = localStorage.getItem('dinoNeonPoints') ? parseInt(localStorage.getItem('dinoNeonPoints')) : 0;
+    // Купленные скины и текущий скин
+    let ownedSkins = localStorage.getItem('dinoNeonSkins') ? JSON.parse(localStorage.getItem('dinoNeonSkins')) : ['green'];
+    let currentSkin = localStorage.getItem('dinoNeonSkin') || 'green';
+    // Список доступных скинов
+    const skinsList = [
+        { id: 'green', name: 'Зелёный', price: 0, color1: '#3bad3b', color2: '#00ccff' },
+        { id: 'blue', name: 'Синий', price: 100, color1: '#2a6f8f', color2: '#88ffff' },
+        { id: 'red', name: 'Красный', price: 200, color1: '#c44', color2: '#ffaa88' }
+    ];
+
+    // Обновляем отображение очков в магазине
+    function updateShopUI() {
+        document.getElementById('totalScore').innerText = totalPoints;
+        const container = document.getElementById('shopItems');
+        if (!container) return;
+        container.innerHTML = '';
+        for (let skin of skinsList) {
+            const owned = ownedSkins.includes(skin.id);
+            const isCurrent = currentSkin === skin.id;
+            const div = document.createElement('div');
+            div.className = 'shop-item';
+            div.innerHTML = `
+                <h3>${skin.name}</h3>
+                <p>Цена: ${skin.price} очков</p>
+                <div style="width:40px;height:40px;background:${skin.color1};margin:0 auto;border-radius:8px;"></div>
+                ${owned ? `<button class="shop-btn" data-skin="${skin.id}" data-action="equip">${isCurrent ? 'НАДЕТ' : 'НАДЕТЬ'}</button>` :
+                          `<button class="shop-btn" data-skin="${skin.id}" data-action="buy" ${totalPoints < skin.price ? 'disabled' : ''}>КУПИТЬ</button>`}
+            `;
+            container.appendChild(div);
+        }
+        // Вешаем обработчики
+        document.querySelectorAll('.shop-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const skinId = btn.dataset.skin;
+                const action = btn.dataset.action;
+                if (action === 'buy') {
+                    const skin = skinsList.find(s => s.id === skinId);
+                    if (totalPoints >= skin.price) {
+                        totalPoints -= skin.price;
+                        ownedSkins.push(skinId);
+                        localStorage.setItem('dinoNeonPoints', totalPoints);
+                        localStorage.setItem('dinoNeonSkins', JSON.stringify(ownedSkins));
+                        updateShopUI();
+                        updateTotalScores();
+                    }
+                } else if (action === 'equip') {
+                    currentSkin = skinId;
+                    localStorage.setItem('dinoNeonSkin', currentSkin);
+                    updateShopUI();
+                }
+            });
         });
     }
-</script>
 
+    // Обновляем отображение очков на всех экранах
+    function updateTotalScores() {
+        const totalElements = document.querySelectorAll('#totalScore, #totalScoreGame');
+        totalElements.forEach(el => { if(el) el.innerText = totalPoints; });
+    }
+
+    // ---------- ИГРА ----------
+    let gameActive = false;
+    let animationId = null;
+    // Параметры canvas
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = 800, H = 400;
+    const GROUND_Y = 340;
+
+    let player = {
+        x: 70, y: GROUND_Y - 44, w: 34, h: 44,
+        vy: 0, gravity: 0.65, jumpPower: -10, grounded: true
+    };
+    let obstacles = [];
+    let bonuses = [];
+    let obstacleSpeed = 3.6;
+    let bonusSpeed = 3.6;
+    let currentGameScore = 0;
+    let frameCounter = 0;
+    let difficultyCounter = 0;
+    let jumpTrigger = false;
+
+    // Функции игры
+    function getSkinColors() {
+        const skin = skinsList.find(s => s.id === currentSkin);
+        return { body: skin.color1, stripe: skin.color2 };
+    }
+
+    function spawnObstacle() {
+        obstacles.push({ x: W, y: GROUND_Y - 32, w: 26, h: 32 });
+    }
+    function spawnBonus() {
+        bonuses.push({ x: W, y: GROUND_Y - 22, w: 18, h: 18 });
+    }
+
+    function updateGame() {
+        if (!gameActive) return;
+        // Сложность
+        difficultyCounter++;
+        if (difficultyCounter > 280) {
+            difficultyCounter = 0;
+            obstacleSpeed += 0.25;
+            bonusSpeed += 0.2;
+            if (obstacleSpeed > 9.2) obstacleSpeed = 9.2;
+            if (bonusSpeed > 9) bonusSpeed = 9;
+        }
+        // Дроны
+        for (let i=0; i<obstacles.length; i++) {
+            obstacles[i].x -= obstacleSpeed;
+            if (player.x < obstacles[i].x+obstacles[i].w && player.x+player.w > obstacles[i].x &&
+                player.y < obstacles[i].y+obstacles[i].h && player.y+player.h > obstacles[i].y) {
+                gameActive = false;
+                return;
+            }
+        }
+        obstacles = obstacles.filter(o => o.x+o.w > 0);
+        // Бонусы
+        for (let i=0; i<bonuses.length; i++) {
+            bonuses[i].x -= bonusSpeed;
+            if (player.x < bonuses[i].x+bonuses[i].w && player.x+player.w > bonuses[i].x &&
+                player.y < bonuses[i].y+bonuses[i].h && player.y+player.h > bonuses[i].y) {
+                bonuses.splice(i,1);
+                currentGameScore += 10;
+                document.getElementById('gameScore').innerText = currentGameScore;
+                i--;
+            }
+        }
+        bonuses = bonuses.filter(b => b.x+b.w > 0);
+        // Генерация
+        frameCounter++;
+        if (gameActive) {
+            if (frameCounter > 55 && Math.random()<0.28 && obstacles.length<3) { spawnObstacle(); frameCounter=20; }
+            if (frameCounter > 40 && Math.random()<0.22 && bonuses.length<4) { spawnBonus(); }
+        }
+        // Прыжок
+        if (jumpTrigger && player.grounded && gameActive) {
+            player.vy = player.jumpPower;
+            player.grounded = false;
+            jumpTrigger = false;
+        }
+        player.vy += player.gravity;
+        player.y += player.vy;
+        if (player.y+player.h >= GROUND_Y) {
+            player.y = GROUND_Y - player.h;
+            player.vy = 0;
+            player.grounded = true;
+        }
+        if (player.y < 0) { player.y = 0; if(player.vy<0) player.vy=0; }
+    }
+
+    function draw() {
+        ctx.clearRect(0,0,W,H);
+        // небо
+        const grad = ctx.createLinearGradient(0,0,0,H);
+        grad.addColorStop(0,"#0a0f1a"); grad.addColorStop(1,"#111827");
+        ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
+        // земля
+        ctx.fillStyle = "#1a2538"; ctx.fillRect(0,GROUND_Y,W,H-GROUND_Y);
+        ctx.fillStyle = "#00ffcc"; ctx.fillRect(0,GROUND_Y-3,W,3);
+        // препятствия
+        for(let o of obstacles) {
+            ctx.fillStyle = "#e31b5f"; ctx.shadowBlur=6; ctx.shadowColor="#ff2277";
+            ctx.fillRect(o.x,o.y,o.w,o.h);
+            ctx.fillStyle="#fff"; ctx.fillRect(o.x+5,o.y+8,5,5); ctx.fillRect(o.x+o.w-10,o.y+8,5,5);
+        }
+        // бонусы
+        for(let b of bonuses) {
+            ctx.fillStyle="#2dd4ff"; ctx.shadowBlur=8; ctx.shadowColor="#00ccff";
+            ctx.beginPath(); ctx.moveTo(b.x+b.w/2,b.y); ctx.lineTo(b.x+b.w,b.y+b.h/2); ctx.lineTo(b.x+b.w/2,b.y+b.h); ctx.lineTo(b.x,b.y+b.h/2); ctx.fill();
+            ctx.fillStyle="#b8ffff"; ctx.beginPath(); ctx.moveTo(b.x+b.w/2,b.y+3); ctx.lineTo(b.x+b.w-4,b.y+b.h/2); ctx.lineTo(b.x+b.w/2,b.y+b.h-3); ctx.lineTo(b.x+4,b.y+b.h/2); ctx.fill();
+        }
+        // игрок с текущим скином
+        const colors = getSkinColors();
+        ctx.shadowBlur=0;
+        ctx.fillStyle = colors.body; ctx.fillRect(player.x,player.y,player.w,player.h);
+        ctx.fillStyle = colors.stripe; ctx.fillRect(player.x+5,player.y+6,6,12); ctx.fillRect(player.x+5,player.y+24,6,12);
+        ctx.fillStyle = "white"; ctx.fillRect(player.x+player.w-12,player.y+10,8,8);
+        ctx.fillStyle = "#000"; ctx.fillRect(player.x+player.w-9,player.y+13,4,4);
+        if(!gameActive) {
+            ctx.font="bold 34 monospace"; ctx.fillStyle="#ff44cc"; ctx.fillText("GAME OVER",W/2-115,H/2-40);
+            ctx.font="16px monospace"; ctx.fillStyle="#00ffcc"; ctx.fillText("Нажми 'Начать заново'",W/2-105,H/2+15);
+        }
+        ctx.font="11px monospace"; ctx.fillStyle="#88aaff"; ctx.fillText("Скорость: "+obstacleSpeed.toFixed(1),W-75,22);
+    }
+
+    function gameLoop() {
+        updateGame();
+        draw();
+        if(gameActive) animationId = requestAnimationFrame(gameLoop);
+        else { if(animationId) cancelAnimationFrame(animationId); animationId = null; }
+    }
+
+    function startGameSession() {
+        // сброс игровых параметров
+        gameActive = true;
+        currentGameScore = 0;
+        document.getElementById('gameScore').innerText = "0";
+        obstacleSpeed = 3.6;
+        bonusSpeed = 3.6;
+        difficultyCounter = 0;
+        frameCounter = 0;
+        obstacles = [];
+        bonuses = [];
+        player.y = GROUND_Y - player.h;
+        player.vy = 0;
+        player.grounded = true;
+        jumpTrigger = false;
+        if(animationId) cancelAnimationFrame(animationId);
+        gameLoop();
+    }
+
+    function endGameAndSave() {
+        if(!gameActive && currentGameScore>0) {
+            totalPoints += currentGameScore;
+            localStorage.setItem('dinoNeonPoints', totalPoints);
+            updateTotalScores();
+            updateShopUI();
+        }
+        gameActive = false;
+    }
+
+    // ---------- Управление экранами ----------
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        if(screenId === 'gameScreen') {
+            startGameSession();
+        } else if(screenId === 'shopScreen') {
+            updateShopUI();
+            updateTotalScores();
+        } else if(screenId === 'menuScreen') {
+            if(animationId) { cancelAnimationFrame(animationId); animationId = null; }
+            endGameAndSave();
+        }
+    }
+
+    // Обработчики кнопок
+    document.getElementById('playBtn').addEventListener('click', () => showScreen('gameScreen'));
+    document.getElementById('shopBtn').addEventListener('click', () => showScreen('shopScreen'));
+    document.getElementById('controlsBtn').addEventListener('click', () => showScreen('controlsScreen'));
+    document.getElementById('backFromControls').addEventListener('click', () => showScreen('menuScreen'));
+    document.getElementById('backFromShop').addEventListener('click', () => showScreen('menuScreen'));
+    document.getElementById('exitToMenu').addEventListener('click', () => {
+        endGameAndSave();
+        showScreen('menuScreen');
+    });
+    document.getElementById('restartGameBtn').addEventListener('click', () => {
+        if(gameActive) {
+            endGameAndSave();
+        }
+        startGameSession();
+    });
+    // Управление прыжком
+    function handleJump(e) {
+        if(!gameActive) return;
+        if(e.type === 'keydown' && e.code === 'Space') { e.preventDefault(); jumpTrigger = true; }
+        else if(e.type === 'click') { jumpTrigger = true; }
+    }
+    window.addEventListener('keydown', handleJump);
+    canvas.addEventListener('click', handleJump);
+    // Блокировка пробела
+    window.addEventListener('keydown', (e) => { if(e.code === 'Space') e.preventDefault(); });
+
+    // Инициализация
+    updateShopUI();
+    updateTotalScores();
+</script>
 </body>
 </html>
