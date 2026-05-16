@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>DinoNeon — Игра с меню и магазином</title>
+    <style>
+        * {
+            user-select: none;
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #0a0f1a;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        /* экраны */
+        .screen {
+            width: 100%;
+            max-width: 1000px;
+            margin: 20px;
+            background: #0f1420dd;
+            backdrop-filter: blur(2px);
+            border-radius: 32px;
+            border: 1px solid #00ffcc;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 30px #00ffcc33;
+        }
+        .hidden {
+            display: none;
+        }
+        h1 {
+            color: #00ffcc;
+            text-shadow: 0 0 8px #00ffcc;
+            font-size: 2.5rem;
+        }
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            margin: 40px 0;
+        }
+        button {
+            background: #1a1f2e;
+            border: 2px solid #00ffcc;
+            color: #00ffcc;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 12px 32px;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+        button:hover {
+            background: #00ffcc;
+            color: #0a0f1a;
+            box-shadow: 0 0 15px #00ffcc;
+            transform: scale(1.02);
+        }
+        .shop-items {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+        .skin-card {
+            background: #101520;
+            border: 1px solid #ff00cc;
+            border-radius: 20px;
+            padding: 15px;
+            width: 180px;
+        }
+        .skin-card h3 {
+            color: #ff00cc;
+        }
+        .coins {
+            font-size: 1.4rem;
+            background: #000000aa;
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 40px;
+            margin-bottom: 20px;
+        }
+        canvas {
+            background: #0a0f1a;
+            border-radius: 20px;
+            display: block;
+            margin: 0 auto;
+            border: 2px solid #00ffcc;
+        }
+        .back-btn {
+            margin-top: 20px;
+            background: #2a2f3a;
+            border-color: #ff00cc;
+            color: #ff00cc;
+        }
+        .controls-info {
+            margin-top: 20px;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <!-- ЭКРАН МЕНЮ -->
+    <div id="menuScreen" class="screen">
+        <h1>🦖 DinoNeon</h1>
+        <div class="menu-buttons">
+            <button id="startGameBtn">▶ ИГРАТЬ</button>
+            <button id="shopBtn">🛒 МАГАЗИН</button>
+            <button id="controlsBtn">⌨️ УПРАВЛЕНИЕ</button>
+        </div>
+        <div class="coins">💰 <span id="totalCoins">0</span> очков</div>
+        <div id="controlsPanel" class="hidden controls-info">
+            <p>Пробел или клик — прыжок</p>
+            <p>Собирай синие кристаллы +10</p>
+            <p>Красные дроны — проигрыш</p>
+            <button id="closeControls" class="back-btn">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- ЭКРАН МАГАЗИНА -->
+    <div id="shopScreen" class="screen hidden">
+        <h2>🛍️ Магазин скинов</h2>
+        <div class="shop-items">
+            <div class="skin-card">
+                <h3>🟢 Зелёный</h3>
+                <p>Стандарт</p>
+                <button class="buySkin" data-skin="green" disabled>Куплен</button>
+            </div>
+            <div class="skin-card">
+                <h3>🔵 Синий</h3>
+                <p>Цена: 100 ⚡</p>
+                <button class="buySkin" data-skin="blue">Купить</button>
+            </div>
+            <div class="skin-card">
+                <h3>🔴 Красный</h3>
+                <p>Цена: 200 ⚡</p>
+                <button class="buySkin" data-skin="red">Купить</button>
+            </div>
+        </div>
+        <button id="backToMenuFromShop" class="back-btn">← Назад</button>
+    </div>
+
+    <!-- ЭКРАН ИГРЫ -->
+    <div id="gameScreen" class="screen hidden">
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+        <div class="controls-info">
+            Счёт: <span id="gameScore">0</span> &nbsp;|&nbsp;
+            <button id="exitToMenu" class="back-btn">Выйти в меню</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- Глобальные данные ----------
+    let totalPoints = localStorage.getItem("dinoPoints") ? parseInt(localStorage.getItem("dinoPoints")) : 0;
+    let ownedSkins = localStorage.getItem("dinoSkins") ? JSON.parse(localStorage.getItem("dinoSkins")) : ["green"];
+    let currentSkin = localStorage.getItem("dinoSkin") || "green";
+    
+    // Игровые переменные
+    let gameActive = false;
+    let animationId = null;
+    let canvas, ctx;
+    let W = 800, H = 400, GROUND_Y = 340;
+    
+    // Игрок
+    let player = { x: 70, y: GROUND_Y - 44, w: 34, h: 44, vy: 0, grounded: true };
+    let obstacles = [];
+    let bonuses = [];
+    let obstacleSpeed = 3.6;
+    let baseSpeed = 3.6;
+    let score = 0;
+    let frameCount = 0;
+    let difficultyCounter = 0;
+    let jumpTrigger = false;
+    
+    // Цвета скинов
+    const skinColors = { green: "#3bad3b", blue: "#3b6eff", red: "#e34b3b" };
+    
+    // DOM элементы
+    const menuScreen = document.getElementById('menuScreen');
+    const shopScreen = document.getElementById('shopScreen');
+    const gameScreen = document.getElementById('gameScreen');
+    const totalCoinsSpan = document.getElementById('totalCoins');
+    const gameScoreSpan = document.getElementById('gameScore');
+    
+    function updateUI() {
+        totalCoinsSpan.innerText = totalPoints;
+        // обновим кнопки магазина
+        document.querySelectorAll('.buySkin').forEach(btn => {
+            const skin = btn.dataset.skin;
+            if (ownedSkins.includes(skin)) {
+                btn.innerText = 'Куплен';
+                btn.disabled = true;
+            } else {
+                btn.innerText = `Купить (${skin === 'blue' ? 100 : 200})`;
+                btn.disabled = false;
+            }
+        });
+    }
+    
+    function saveProgress() {
+        localStorage.setItem("dinoPoints", totalPoints);
+        localStorage.setItem("dinoSkins", JSON.stringify(ownedSkins));
+        localStorage.setItem("dinoSkin", currentSkin);
+        updateUI();
+    }
+    
+    // Покупка скина
+    function buySkin(skin) {
+        let price = skin === 'blue' ? 100 : 200;
+        if (ownedSkins.includes(skin)) return;
+        if (totalPoints >= price) {
+            totalPoints -= price;
+            ownedSkins.push(skin);
+            saveProgress();
+            alert(`Скин ${skin === 'blue' ? 'Синий' : 'Красный'} куплен!`);
+        } else {
+            alert("Не хватает очков!");
+        }
+    }
+    
+    // --- ИГРОВАЯ МЕХАНИКА (полная копия из предыдущего кода) ---
+    function initGameCanvas() {
+        canvas = document.getElementById('gameCanvas');
+        ctx = canvas.getContext('2d');
+        canvas.width = W; canvas.height = H;
+    }
+    
+    function resetGame() {
+        gameActive = true;
+        score = 0;
+        obstacleSpeed = baseSpeed;
+        difficultyCounter = 0;
+        obstacles = [];
+        bonuses = [];
+        player.y = GROUND_Y - player.h;
+        player.vy = 0;
+        player.grounded = true;
+        frameCount = 0;
+        gameScoreSpan.innerText = "0";
+    }
+    
+    function spawnObstacle() {
+        obstacles.push({ x: W, y: GROUND_Y - 32, w: 26, h: 32 });
+    }
+    function spawnBonus() {
+        bonuses.push({ x: W, y: GROUND_Y - 22, w: 18, h: 18 });
+    }
+    
+    function updateGame() {
+        if (!gameActive) return;
+        difficultyCounter++;
+        if (difficultyCounter > 280) {
+            difficultyCounter = 0;
+            obstacleSpeed += 0.25;
+            if (obstacleSpeed > 9.2) obstacleSpeed = 9.2;
+        }
+        for (let i=0; i<obstacles.length; i++) {
+            obstacles[i].x -= obstacleSpeed;
+            if (player.x < obstacles[i].x+obstacles[i].w && player.x+player.w > obstacles[i].x &&
+                player.y < obstacles[i].y+obstacles[i].h && player.y+player.h > obstacles[i].y) {
+                gameActive = false;
+                return;
+            }
+        }
+        obstacles = obstacles.filter(o => o.x+o.w > 0);
+        
+        for (let i=0; i<bonuses.length; i++) {
+            bonuses[i].x -= obstacleSpeed;
+            if (player.x < bonuses[i].x+bonuses[i].w && player.x+player.w > bonuses[i].x &&
+                player.y < bonuses[i].y+bonuses[i].h && player.y+player.h > bonuses[i].y) {
+                bonuses.splice(i,1);
+                score += 10;
+                gameScoreSpan.innerText = score;
+                i--;
+            }
+        }
+        bonuses = bonuses.filter(b => b.x+b.w > 0);
+        
+        frameCount++;
+        if (gameActive) {
+            if (frameCount > 55 && Math.random()<0.28 && obstacles.length<3) { spawnObstacle(); frameCount=20; }
+            if (frameCount > 40 && Math.random()<0.22 && bonuses.length<4) { spawnBonus(); }
+        }
+        
+        if (jumpTrigger && player.grounded && gameActive) {
+            player.vy = -10;
+            player.grounded = false;
+            jumpTrigger = false;
+        }
+        player.vy += 0.65;
+        player.y += player.vy;
+        if (player.y+player.h >= GROUND_Y) {
+            player.y = GROUND_Y - player.h;
+            player.vy = 0;
+            player.grounded = true;
+        }
+        if (player.y < 0) { player.y = 0; if (player.vy<0) player.vy=0; }
+    }
+    
+    function drawGame() {
+        ctx.clearRect(0,0,W,H);
+        // фон
+        const grad = ctx.createLinearGradient(0,0,0,H);
+        grad.addColorStop(0,"#0a0f1a"); grad.addColorStop(1,"#111827");
+        ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+        ctx.fillStyle="#1a2538"; ctx.fillRect(0,GROUND_Y,W,H-GROUND_Y);
+        ctx.fillStyle="#00ffcc"; ctx.fillRect(0,GROUND_Y-3,W,3);
+        // дроны
+        for(let o of obstacles){
+            ctx.fillStyle="#e31b5f"; ctx.fillRect(o.x,o.y,o.w,o.h);
+            ctx.fillStyle="#fff"; ctx.fillRect(o.x+5,o.y+8,5,5); ctx.fillRect(o.x+o.w-10,o.y+8,5,5);
+        }
+        // бонусы
+        for(let b of bonuses){
+            ctx.fillStyle="#2dd4ff"; 
+            ctx.beginPath(); ctx.moveTo(b.x+b.w/2,b.y); ctx.lineTo(b.x+b.w,b.y+b.h/2);
+            ctx.lineTo(b.x+b.w/2,b.y+b.h); ctx.lineTo(b.x,b.y+b.h/2); ctx.fill();
+            ctx.fillStyle="#b8ffff";
+            ctx.beginPath(); ctx.moveTo(b.x+b.w/2,b.y+3); ctx.lineTo(b.x+b.w-4,b.y+b.h/2);
+            ctx.lineTo(b.x+b.w/2,b.y+b.h-3); ctx.lineTo(b.x+4,b.y+b.h/2); ctx.fill();
+        }
+        // динозавр со скином
+        ctx.fillStyle = skinColors[currentSkin] || "#3bad3b";
+        ctx.fillRect(player.x, player.y, player.w, player.h);
+        ctx.fillStyle="#00ccff";
+        ctx.fillRect(player.x+5, player.y+6,6,12); ctx.fillRect(player.x+5, player.y+24,6,12);
+        ctx.fillStyle="white"; ctx.fillRect(player.x+player.w-12, player.y+10,8,8);
+        ctx.fillStyle="#000"; ctx.fillRect(player.x+player.w-9, player.y+13,4,4);
+        
+        if(!gameActive){
+            ctx.font="bold 34 monospace"; ctx.fillStyle="#ff44cc"; ctx.fillText("GAME OVER",W/2-115,H/2-40);
+        }
+    }
+    
+    function gameLoop() {
+        if (!gameActive && animationId) {
+            drawGame();
+            requestAnimationFrame(gameLoop);
+            return;
+        }
+        if (!gameActive) return;
+        updateGame();
+        drawGame();
+        animationId = requestAnimationFrame(gameLoop);
+    }
+    
+    function startGameSession() {
+        resetGame();
+        gameActive = true;
+        if (animationId) cancelAnimationFrame(animationId);
+        gameLoop();
+    }
+    
+    function endGameAndAddPoints() {
+        if (animationId) cancelAnimationFrame(animationId);
+        if (!gameActive && score>0) {
+            totalPoints += score;
+            saveProgress();
+        }
+        gameActive = false;
+    }
+    
+    // Переключение экранов
+    function showMenu() {
+        endGameAndAddPoints();
+        menuScreen.classList.remove('hidden');
+        shopScreen.classList.add('hidden');
+        gameScreen.classList.add('hidden');
+        updateUI();
+    }
+    function showShop() {
+        endGameAndAddPoints();
+        menuScreen.classList.add('hidden');
+        shopScreen.classList.remove('hidden');
+        gameScreen.classList.add('hidden');
+        updateUI();
+    }
+    function showGame() {
+        endGameAndAddPoints();
+        menuScreen.classList.add('hidden');
+        shopScreen.classList.add('hidden');
+        gameScreen.classList.remove('hidden');
+        initGameCanvas();
+        resetGame();
+        startGameSession();
+        // обработчик прыжка на canvas
+        const canvasEl = document.getElementById('gameCanvas');
+        const jumpHandler = (e) => { if(gameActive) jumpTrigger=true; };
+        canvasEl.removeEventListener('click', jumpHandler);
+        canvasEl.addEventListener('click', jumpHandler);
+        window.removeEventListener('keydown', spaceHandler);
+        window.addEventListener('keydown', spaceHandler);
+    }
+    function spaceHandler(e) { if(e.code==='Space'){ e.preventDefault(); if(gameActive) jumpTrigger=true; } }
+    
+    // Назначение кнопок
+    document.getElementById('startGameBtn').onclick = showGame;
+    document.getElementById('shopBtn').onclick = showShop;
+    document.getElementById('controlsBtn').onclick = () => {
+        const cp = document.getElementById('controlsPanel');
+        cp.classList.toggle('hidden');
+    };
+    document.getElementById('closeControls').onclick = () => document.getElementById('controlsPanel').classList.add('hidden');
+    document.getElementById('backToMenuFromShop').onclick = showMenu;
+    document.getElementById('exitToMenu').onclick = () => { endGameAndAddPoints(); showMenu(); };
+    
+    document.querySelectorAll('.buySkin').forEach(btn => {
+        btn.onclick = () => buySkin(btn.dataset.skin);
+    });
+    
+    // Инициализация
+    updateUI();
+    showMenu();
+    // предотвращаем прокрутку пробелом
+    window.addEventListener('keydown', function(e){ if(e.code==='Space') e.preventDefault(); });
+</script>
+</body>
+</html>
