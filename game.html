@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>DinoNeon — игра</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+        body {
+            background: #0a0f1a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', monospace;
+        }
+        .game-container {
+            background: #000000aa;
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 0 30px #00ffcc44;
+            border: 1px solid #00ffcc;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border-radius: 16px;
+            cursor: pointer;
+        }
+        .info {
+            text-align: center;
+            margin-top: 15px;
+            color: #00ffcc;
+            font-weight: bold;
+        }
+        button {
+            background: #00ffcc;
+            border: none;
+            padding: 8px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 40px;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #ff00cc;
+            color: white;
+            box-shadow: 0 0 12px #ff00cc;
+        }
+        .controls {
+            color: #aaa;
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+        <div class="info">
+            <span>⚡ Энергия: <span id="scoreValue">0</span></span>
+            <br>
+            <button id="restartBtn">🔄 Начать заново</button>
+        </div>
+        <div class="controls">
+            🦖 Пробел / Клик мышкой — прыжок | 🌟 Собирай синие кристаллы | ☠️ Избегай дронов
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- ПОЛУЧАЕМ ЭЛЕМЕНТЫ ----------
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreSpan = document.getElementById('scoreValue');
+
+    // ---------- РАЗМЕРЫ ИГРОВОГО ПОЛЯ ----------
+    const W = 800, H = 400;
+    const GROUND_Y = 340;      // высота земли (y координата, где стоят объекты)
+
+    // ---------- ИГРОК (ДИНОЗАВР) ----------
+    const PLAYER_WIDTH = 35;
+    const PLAYER_HEIGHT = 45;
+    let player = {
+        x: 80,
+        y: GROUND_Y - PLAYER_HEIGHT,
+        width: PLAYER_WIDTH,
+        height: PLAYER_HEIGHT,
+        vy: 0,          // вертикальная скорость
+        gravity: 0.6,
+        jumpPower: -10,
+        grounded: true
+    };
+
+    // ---------- ПРЕПЯТСТВИЯ (ДРОНЫ) ----------
+    let obstacles = [];
+    const OBSTACLE_WIDTH = 25;
+    const OBSTACLE_HEIGHT = 30;
+    let obstacleSpeed = 3.5;     // начальная скорость движения влево
+    let baseSpeed = 3.5;
+
+    // ---------- БОНУСЫ (ЭНЕРГО-КОСТИ) ----------
+    let bonuses = [];
+    const BONUS_WIDTH = 20;
+    const BONUS_HEIGHT = 20;
+    let bonusSpeed = 3.5;
+
+    // ---------- ИГРОВЫЕ ПЕРЕМЕННЫЕ ----------
+    let score = 0;
+    let gameRunning = true;
+    let frameCounter = 0;
+    let difficultyTimer = 0;      // для увеличения скорости со временем
+
+    // ---------- УПРАВЛЕНИЕ (прыжок) ----------
+    let jumpRequested = false;
+
+    // ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
+    function updateScoreUI() {
+        scoreSpan.innerText = Math.floor(score);
+    }
+
+    // Перезапуск игры
+    function restartGame() {
+        gameRunning = true;
+        score = 0;
+        obstacleSpeed = baseSpeed;
+        bonusSpeed = baseSpeed;
+        difficultyTimer = 0;
+        obstacles = [];
+        bonuses = [];
+        player.y = GROUND_Y - PLAYER_HEIGHT;
+        player.vy = 0;
+        player.grounded = true;
+        frameCounter = 0;
+        updateScoreUI();
+    }
+
+    // Генерация препятствия (дрон)
+    function spawnObstacle() {
+        obstacles.push({
+            x: W,
+            y: GROUND_Y - OBSTACLE_HEIGHT,
+            width: OBSTACLE_WIDTH,
+            height: OBSTACLE_HEIGHT
+        });
+    }
+
+    // Генерация бонуса (энерго-кость)
+    function spawnBonus() {
+        bonuses.push({
+            x: W,
+            y: GROUND_Y - BONUS_HEIGHT - 5,   // чуть выше земли
+            width: BONUS_WIDTH,
+            height: BONUS_HEIGHT
+        });
+    }
+
+    // ---------- ОБНОВЛЕНИЕ ЛОГИКИ (КАЖДЫЙ КАДР) ----------
+    function updateGame() {
+        if (!gameRunning) return;
+
+        // 1. Увеличение сложности: каждые 300 кадров скорость растёт
+        difficultyTimer++;
+        if (difficultyTimer > 300) {
+            difficultyTimer = 0;
+            obstacleSpeed += 0.3;
+            bonusSpeed += 0.2;
+            // максимум скорость не более 9
+            if (obstacleSpeed > 9) obstacleSpeed = 9;
+            if (bonusSpeed > 9) bonusSpeed = 9;
+        }
+
+        // 2. Движение препятствий и проверка столкновений
+        for (let i = 0; i < obstacles.length; i++) {
+            obstacles[i].x -= obstacleSpeed;
+            // Столкновение с игроком
+            if (player.x < obstacles[i].x + obstacles[i].width &&
+                player.x + player.width > obstacles[i].x &&
+                player.y < obstacles[i].y + obstacles[i].height &&
+                player.y + player.height > obstacles[i].y) {
+                gameRunning = false;   // проигрыш
+                return;
+            }
+        }
+        // Удаляем уехавшие за левый край
+        obstacles = obstacles.filter(obs => obs.x + obs.width > 0);
+
+        // 3. Движение бонусов и сбор
+        for (let i = 0; i < bonuses.length; i++) {
+            bonuses[i].x -= bonusSpeed;
+            // Проверка сбора
+            if (player.x < bonuses[i].x + bonuses[i].width &&
+                player.x + player.width > bonuses[i].x &&
+                player.y < bonuses[i].y + bonuses[i].height &&
+                player.y + player.height > bonuses[i].y) {
+                // Собрали бонус
+                bonuses.splice(i,1);
+                score += 10;
+                updateScoreUI();
+                i--; // так как удалили элемент, нужно скорректировать индекс
+                continue;
+            }
+        }
+        bonuses = bonuses.filter(b => b.x + b.width > 0);
+
+        // 4. Генерация объектов (примерно раз в 40-80 кадров)
+        frameCounter++;
+        if (gameRunning) {
+            if (frameCounter > 60 && Math.random() < 0.3) { // шанс создать препятствие
+                if (obstacles.length < 3) spawnObstacle();
+                frameCounter = 20;
+            }
+            if (frameCounter > 45 && Math.random() < 0.2) { // шанс создать бонус
+                if (bonuses.length < 4) spawnBonus();
+            }
+        }
+
+        // 5. Физика игрока (прыжок и гравитация)
+        if (jumpRequested && player.grounded && gameRunning) {
+            player.vy = player.jumpPower;
+            player.grounded = false;
+            jumpRequested = false;
+        }
+        player.vy += player.gravity;
+        player.y += player.vy;
+
+        // Проверка приземления
+        if (player.y + player.height >= GROUND_Y) {
+            player.y = GROUND_Y - player.height;
+            player.vy = 0;
+            player.grounded = true;
+        }
+        if (player.y < 0) {
+            player.y = 0;
+            if (player.vy < 0) player.vy = 0;
+        }
+    }
+
+    // ---------- ОТРИСОВКА ВСЕГО НА ЭКРАНЕ ----------
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        
+        // 1. Заливка неба (градиент)
+        const grad = ctx.createLinearGradient(0, 0, 0, H);
+        grad.addColorStop(0, "#0a1020");
+        grad.addColorStop(1, "#101826");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+        
+        // 2. Земля (неоновая полоса)
+        ctx.fillStyle = "#1a2a3a";
+        ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
+        ctx.fillStyle = "#00ffcc";
+        ctx.fillRect(0, GROUND_Y - 3, W, 3);
+        
+        // 3. Препятствия (дроны) — красные роботы
+        for (let obs of obstacles) {
+            ctx.fillStyle = "#ff2266";
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = "#ff2266";
+            ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+            // глаза
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(obs.x+5, obs.y+8, 5, 5);
+            ctx.fillRect(obs.x+obs.width-10, obs.y+8, 5, 5);
+        }
+        
+        // 4. Бонусы (энерго-кости) — синие кристаллы
+        for (let b of bonuses) {
+            ctx.fillStyle = "#33ccff";
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "#00ffff";
+            ctx.beginPath();
+            ctx.moveTo(b.x + b.width/2, b.y);          // верх
+            ctx.lineTo(b.x + b.width, b.y + b.height/2);
+            ctx.lineTo(b.x + b.width/2, b.y + b.height);
+            ctx.lineTo(b.x, b.y + b.height/2);
+            ctx.fill();
+            // внутренняя подсветка
+            ctx.fillStyle = "#aaffff";
+            ctx.beginPath();
+            ctx.moveTo(b.x + b.width/2, b.y+4);
+            ctx.lineTo(b.x + b.width-5, b.y + b.height/2);
+            ctx.lineTo(b.x + b.width/2, b.y + b.height-4);
+            ctx.lineTo(b.x+5, b.y + b.height/2);
+            ctx.fill();
+        }
+        
+        // 5. Игрок (динозавр) — зелёный с неоновыми полосками
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#3ba53b";
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+        // неоновые синие полоски на спине
+        ctx.fillStyle = "#00ccff";
+        ctx.fillRect(player.x+5, player.y+8, 6, 12);
+        ctx.fillRect(player.x+5, player.y+25, 6, 12);
+        // глаз
+        ctx.fillStyle = "white";
+        ctx.fillRect(player.x+player.width-10, player.y+10, 8, 8);
+        ctx.fillStyle = "black";
+        ctx.fillRect(player.x+player.width-7, player.y+13, 4, 4);
+        
+        // 6. Текст "Game Over"
+        if (!gameRunning) {
+            ctx.font = "bold 36 monospace";
+            ctx.fillStyle = "#ff00cc";
+            ctx.shadowBlur = 0;
+            ctx.fillText("GAME OVER", W/2-120, H/2-40);
+            ctx.font = "18px monospace";
+            ctx.fillStyle = "#00ffcc";
+            ctx.fillText("Нажми 'Начать заново'", W/2-110, H/2+20);
+        }
+        
+        // 7. Текущая скорость игры (для информации)
+        ctx.font = "12px monospace";
+        ctx.fillStyle = "#aaa";
+        ctx.fillText("Скорость: " + obstacleSpeed.toFixed(1), W-80, 25);
+    }
+
+    // ---------- ИГРОВОЙ ЦИКЛ (update + draw) ----------
+    function gameLoop() {
+        updateGame();
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
+
+    // ---------- ОБРАБОТЧИКИ УПРАВЛЕНИЯ ----------
+    function handleJump(e) {
+        if (e.type === "keydown") {
+            if (e.code === "Space") {
+                e.preventDefault();
+                if (gameRunning) jumpRequested = true;
+            }
+            // перезапуск по клавише R
+            if (e.code === "KeyR") {
+                e.preventDefault();
+                restartGame();
+            }
+        } else if (e.type === "click") {
+            // клик на canvas тоже прыжок
+            if (gameRunning) jumpRequested = true;
+        }
+    }
+
+    // События клавиатуры
+    window.addEventListener("keydown", handleJump);
+    canvas.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (gameRunning) jumpRequested = true;
+    });
+    // Кнопка перезапуска
+    document.getElementById("restartBtn").addEventListener("click", () => {
+        restartGame();
+    });
+
+    // Запрет прокрутки при нажатии пробела
+    window.addEventListener("keydown", function(e) {
+        if (e.code === "Space") {
+            e.preventDefault();
+        }
+    });
+
+    // ---------- СТАРТ ИГРЫ ----------
+    restartGame();
+    gameLoop();
+</script>
+</body>
+</html>
